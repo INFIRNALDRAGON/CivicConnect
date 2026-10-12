@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### PostgreSQL ###
+/backend/SQL_Code/
+
 ### STS ###
 .apt_generated
 .classpath
