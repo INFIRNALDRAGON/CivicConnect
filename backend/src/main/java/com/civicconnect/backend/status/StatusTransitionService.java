@@ -46,6 +46,10 @@ public class StatusTransitionService {
     /**
      * One transaction (ADR-M2-02): the status update and the synchronous audit listener succeed or fail together.
      * The notification listener runs after commit, so nobody is told about a change that was rolled back.
+     * @param actor
+     * @param requestId
+     * @param cmd
+     * @return
      */
     @Transactional
     public ServiceRequest transition(AuthenticatedUser actor, Long requestId, TransitionCommand cmd) {

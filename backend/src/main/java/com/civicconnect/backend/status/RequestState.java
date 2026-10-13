@@ -19,7 +19,10 @@ public interface RequestState {
         return allowedNext().isEmpty();
     }
 
-    /** Throws if the move is not allowed. Template method: shape check first, then state-specific rules. */
+    /** Throws if the move is not allowed. Template method: shape check first, then state-specific rules. 
+     *@param target
+     *@param ctx
+     */
     default void validateTransition(RequestStatus target, TransitionContext ctx) {
         if (!allowedNext().contains(target)) {
             String reason = isTerminal()
@@ -30,7 +33,10 @@ public interface RequestState {
         checkPreconditions(target, ctx);
     }
 
-    /** Hook for rules beyond "is this target allowed", e.g. a mandatory resolution note. */
+    /** Hook for rules beyond "is this target allowed", e.g. a mandatory resolution note. 
+     *@param target
+     *@param ctx     
+     */
     default void checkPreconditions(RequestStatus target, TransitionContext ctx) {
     }
 }

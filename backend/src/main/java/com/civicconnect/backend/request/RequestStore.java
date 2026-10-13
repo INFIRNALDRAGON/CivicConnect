@@ -10,7 +10,10 @@ import java.util.Optional;
  */
 public interface RequestStore {
 
-    /** Assigns an id, sets version 0 and stores the request. Returns the stored copy. */
+    /** Assigns an id, sets version 0 and stores the request. Returns the stored copy. 
+     *@param request
+     *@return
+     */
     ServiceRequest insert(ServiceRequest request);
 
     Optional<ServiceRequest> findById(Long id);
@@ -22,10 +25,15 @@ public interface RequestStore {
     /**
      * Compare-and-set: replaces the stored request only if its version still equals
      * {@code expectedVersion}, then bumps the version. Returns empty when someone else got there first.
+     *@param updated
+     *@param expectedVersion
+     *@return
      */
     Optional<ServiceRequest> replaceIfVersion(ServiceRequest updated, long expectedVersion);
 
-    /** Unconditional restore of an earlier snapshot. Used only to undo a failed status change. */
+    /** Unconditional restore of an earlier snapshot. Used only to undo a failed status change. 
+     *@param snapshot
+     */
     void restore(ServiceRequest snapshot);
 
     RequestComment addComment(RequestComment comment);

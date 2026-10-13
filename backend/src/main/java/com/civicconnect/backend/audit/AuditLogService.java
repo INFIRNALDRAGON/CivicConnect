@@ -28,7 +28,10 @@ public class AuditLogService {
                 event.newStatus(), event.actorId(), event.timestamp(), event.comment()));
     }
 
-    /** Ordered oldest to newest. Callers must have checked the viewer may see this request. */
+    /** Ordered oldest to newest. Callers must have checked the viewer may see this request. 
+     *@param requestId Request to assign
+     *@return 
+     */  
     public List<StatusHistoryEntry> historyFor(Long requestId) {
         return entries.stream().filter(e -> e.requestId().equals(requestId)).toList();
     }

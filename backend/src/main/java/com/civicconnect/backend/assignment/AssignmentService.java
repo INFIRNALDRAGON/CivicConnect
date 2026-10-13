@@ -36,7 +36,15 @@ public class AssignmentService {
         this.users = users;
     }
 
-    /** @param assigneeId null means "the caller accepts it themselves" */
+    /**
+     * Assigns a Submitted request to a staff member (FR-009).
+     *
+     * @param actor           the staff member or manager making the call
+     * @param requestId       the request to assign
+     * @param assigneeId      the staff member to assign to; null means the caller accepts it themselves
+     * @param expectedVersion the request version the caller last saw (optimistic locking)
+     * @return the updated request, now in the Assigned status
+     */
     public ServiceRequest assign(AuthenticatedUser actor, Long requestId, Long assigneeId, long expectedVersion) {
         access.requireStaffOrManager(actor);
         Long targetId = assigneeId == null ? actor.id() : assigneeId;

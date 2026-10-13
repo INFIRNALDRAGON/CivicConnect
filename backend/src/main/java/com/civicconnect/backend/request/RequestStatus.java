@@ -21,12 +21,16 @@ public enum RequestStatus {
         return label;
     }
 
-    /** Resolved and Closed requests accept no edits or comments (FR-012, CR-05). */
+    /** Resolved and Closed requests accept no edits or comments (FR-012, CR-05). 
+     *@return
+     */
     public boolean isReadOnly() {
         return this == RESOLVED || this == CLOSED;
     }
 
-    /** Still counts as "open" for overdue reporting (FR-014). */
+    /** Still counts as "open" for overdue reporting (FR-014). 
+     *@return
+     */
     public boolean isOpen() {
         return !isReadOnly();
     }

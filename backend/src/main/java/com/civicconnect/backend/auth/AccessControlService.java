@@ -31,7 +31,11 @@ public class AccessControlService {
         requireRole(actor, Role.STAFF, Role.MANAGER);
     }
 
-    /** Managers see every category. Staff see only the categories they are scoped to. Requesters see none. */
+    /** Managers see every category. Staff see only the categories they are scoped to. Requesters see none. 
+     @param actor the staff member or manager making the call
+     @param categoryId the category the request falls in to
+     @return returns a boolean value
+     */
     public boolean canAccessCategory(AuthenticatedUser actor, Long categoryId) {
         if (actor == null || actor.role() == null) {
             return false;
@@ -50,7 +54,12 @@ public class AccessControlService {
         }
     }
 
-    /** A requester sees only their own requests; staff and managers use category scope. */
+    /** A requester sees only their own requests; staff and managers use category scope. 
+     *@param actor the staff member or manager making the call
+     *@param requesterId the id of the requester
+     *@param categoryId the category the request falls in to
+     *@return returns a boolean value
+     */
     public boolean canViewRequest(AuthenticatedUser actor, Long requesterId, Long categoryId) {
         if (actor == null || actor.role() == null) {
             return false;

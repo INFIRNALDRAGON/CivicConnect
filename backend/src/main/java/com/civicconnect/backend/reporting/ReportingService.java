@@ -33,8 +33,10 @@ public class ReportingService {
     private final Duration overdueAfter;
 
     /**
-     * CR-02 (a per-category threshold column) was not approved, so the overdue threshold is one
      * configurable value for every category. Change it with civicconnect.reporting.overdue-after-hours.
+     @param requests the request being looked at
+     @param clock the time of the request
+     @param overdueAfterHours the amount of time it takes a request to be considered overdue
      */
     public ReportingService(RequestService requests, Clock clock,
                             @Value("${civicconnect.reporting.overdue-after-hours:72}") long overdueAfterHours) {
@@ -43,7 +45,13 @@ public class ReportingService {
         this.overdueAfter = Duration.ofHours(overdueAfterHours);
     }
 
-    /** FR-013 / FR-015: counts by status for requests created in [from, to). Defaults to the last 7 days. */
+    /** FR-013 / FR-015: counts by status for requests created in [from, to). Defaults to the last 7 days. 
+     *@param actor
+     *@param from
+     *@param to
+     *@param categoryId
+     *@return
+     */
     public Map<RequestStatus, Long> countsByStatus(AuthenticatedUser actor, Instant from, Instant to, Long categoryId) {
         Instant end = rangeEnd(to);
         Instant start = from == null ? end.minus(Duration.ofDays(DEFAULT_RANGE_DAYS)) : from;
@@ -62,7 +70,11 @@ public class ReportingService {
         return counts;
     }
 
-    /** FR-014: open requests older than the threshold. Oldest first. References only. */
+    /** FR-014: open requests older than the threshold. Oldest first. References only. 
+     *@param actor the user responsible for making it overdue
+     *@param categoryId the category 
+     *@return
+     */
     public List<OverdueItem> overdue(AuthenticatedUser actor, Long categoryId) {
         Instant now = clock.instant();
         return requests.findAllForReporting(actor).stream()
@@ -75,7 +87,12 @@ public class ReportingService {
                 .toList();
     }
 
-    /** FR-016: average hours from submission to resolution per category, for requests resolved in the range. */
+    /** FR-016: average hours from submission to resolution per category, for requests resolved in the range. 
+     *@param actor
+     *@param from
+     *@param to
+     *@return
+     */
     public List<ResolutionTime> averageResolutionTimes(AuthenticatedUser actor, Instant from, Instant to) {
         Instant end = rangeEnd(to);
         Instant start = from == null ? end.minus(Duration.ofDays(DEFAULT_RANGE_DAYS)) : from;

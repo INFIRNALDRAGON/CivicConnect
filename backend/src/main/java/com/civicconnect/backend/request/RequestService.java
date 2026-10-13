@@ -40,7 +40,11 @@ public class RequestService {
         this.clock = clock;
     }
 
-    /** FR-001, FR-002, NFR-002. */
+    /** FR-001, FR-002, NFR-002. 
+     *@param actor
+     *@param dto
+     *@return
+     */
     public ServiceRequest create(AuthenticatedUser actor, CreateRequestDto dto) {
         access.requireRole(actor, Role.REQUESTER);
 
@@ -68,7 +72,11 @@ public class RequestService {
         return store.insert(request);
     }
 
-    /** FR-003 and FR-008: a requester sees their own, staff see their category scope, managers see all. */
+    /** FR-003 and FR-008: a requester sees their own, staff see their category scope, managers see all. 
+     *@param actor
+     *@param id
+     *@return
+     */
     public ServiceRequest getForViewer(AuthenticatedUser actor, Long id) {
         access.requireAuthenticated(actor);
         ServiceRequest request = requireById(id);
@@ -76,7 +84,10 @@ public class RequestService {
         return request;
     }
 
-    /** FR-004: newest first. */
+    /** FR-004: newest first. 
+     *@param actor
+     *@return
+     */
     public List<ServiceRequest> listForRequester(AuthenticatedUser actor) {
         access.requireRole(actor, Role.REQUESTER);
         return store.findAll().stream()
@@ -85,7 +96,11 @@ public class RequestService {
                 .toList();
     }
 
-    /** FR-006 (scope) and FR-007 (search, filter, sort by age). */
+    /** FR-006 (scope) and FR-007 (search, filter, sort by age). 
+     *@param actor
+     *@param filter
+     *@return
+     */
     public List<ServiceRequest> listForStaff(AuthenticatedUser actor, RequestFilter filter) {
         access.requireStaffOrManager(actor);
         RequestFilter f = filter == null ? RequestFilter.none() : filter;
@@ -108,7 +123,12 @@ public class RequestService {
                 .toList();
     }
 
-    /** FR-011 and CR-05: refused once the request is Resolved or Closed. */
+    /** FR-011 and CR-05: refused once the request is Resolved or Closed. 
+     *@param actor
+     *@param requestId
+     *@param text
+     *@return
+     */
     public RequestComment addComment(AuthenticatedUser actor, Long requestId, String text) {
         access.requireStaffOrManager(actor);
         ServiceRequest request = requireById(requestId);
@@ -123,7 +143,11 @@ public class RequestService {
         return store.addComment(new RequestComment(null, requestId, actor.id(), text.trim(), clock.instant()));
     }
 
-    /** Comments are internal: staff and managers only. */
+    /** Comments are internal: staff and managers only. 
+     *@param actor
+     *@param requestId
+     *@return
+     */
     public List<RequestComment> commentsFor(AuthenticatedUser actor, Long requestId) {
         access.requireStaffOrManager(actor);
         ServiceRequest request = requireById(requestId);
@@ -137,7 +161,10 @@ public class RequestService {
 
     // ---- used by other modules through this public interface -------------------------------
 
-    /** For the status and assignment modules. No access check: callers do their own. */
+    /** For the status and assignment modules. No access check: callers do their own. 
+     *@param id
+     *@return
+     */
     public ServiceRequest requireById(Long id) {
         return store.findById(id).orElseThrow(() -> new NotFoundException("Request not found"));
     }
@@ -145,18 +172,26 @@ public class RequestService {
     /**
      * Status module only. Saves a changed request if nobody else changed it since the caller read it.
      * Throws 409 otherwise (ASR-03).
+     *@param updated
+     *@param expectedVersion
+     *@return
      */
     public ServiceRequest saveStatusChange(ServiceRequest updated, long expectedVersion) {
         return store.replaceIfVersion(updated, expectedVersion).orElseThrow(() ->
                 new ConflictException("This request was changed by someone else. Reload and try again"));
     }
 
-    /** Status module only. Undoes {@link #saveStatusChange} when a later step fails. */
+    /** Status module only. Undoes {@link #saveStatusChange} when a later step fails. 
+     *@param previousSnapshot     
+     */
     public void undoStatusChange(ServiceRequest previousSnapshot) {
         store.restore(previousSnapshot);
     }
 
-    /** Reporting module only. Managers only: aggregates are built from all requests. */
+    /** Reporting module only. Managers only: aggregates are built from all requests. 
+     *@param actor
+     *@return
+     */
     public List<ServiceRequest> findAllForReporting(AuthenticatedUser actor) {
         access.requireRole(actor, Role.MANAGER);
         return store.findAll();

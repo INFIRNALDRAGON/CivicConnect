@@ -54,12 +54,17 @@ public class ServiceRequest {
         this.version = o.version;
     }
 
-    /** Defensive copy. The store hands out copies so callers cannot change stored state by accident. */
+    /** Defensive copy. The store hands out copies so callers cannot change stored state by accident. 
+     @return
+     */
     public ServiceRequest copy() {
         return new ServiceRequest(this);
     }
 
-    /** Status module only. */
+    /** Status module only. 
+     @param newStatus
+     @param now
+     */
     public void applyStatus(RequestStatus newStatus, Instant now) {
         this.status = newStatus;
         this.updatedAt = now;
@@ -68,7 +73,10 @@ public class ServiceRequest {
         }
     }
 
-    /** Status module only. Records owner and assignment timestamp (FR-009). */
+    /** Status module only. Records owner and assignment timestamp (FR-009). 
+     @param staffId
+     @param now
+     */
     public void assignTo(Long staffId, Instant now) {
         this.assignedStaffId = staffId;
         this.assignedAt = now;
@@ -92,9 +100,13 @@ public class ServiceRequest {
     public Instant getUpdatedAt() { return updatedAt; }
     public long getVersion() { return version; }
 
-    /** Store only. */
+    /** Store only. 
+     *@param id
+     */
     public void setId(Long id) { this.id = id; }
 
-    /** Store only. */
+    /** Store only. 
+     *@param version
+     */
     public void setVersion(long version) { this.version = version; }
 }
