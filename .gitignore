@@ -5,7 +5,8 @@ target/
 !**/src/test/**/target/
 
 ### PostgreSQL ###
-/backend/SQL_Code/
+/backend/src/main/resources/application-dev.properties
+.env
 
 ### STS ###
 .apt_generated
