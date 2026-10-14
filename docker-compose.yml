@@ -1,0 +1,33 @@
+# CivicConnect - local PostgreSQL for development.
+# Start:  docker compose up -d        Stop: docker compose down
+# Reset (DELETES ALL DATA and re-runs the init scripts): docker compose down -v
+#
+# Host port is 5433 so it does not clash with a PostgreSQL installed on Windows
+# (which uses 5432). Spring Boot connects to localhost:5433.
+services:
+  db:
+    image: postgres:16
+    container_name: civicconnect-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: civicconnect
+      POSTGRES_USER: ccadmin                  # local superuser, used from pgAdmin only
+      POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD}
+      # read by docker/init/01-roles.sh to set the three application roles
+      DB_OWNER_PASSWORD: ${DB_OWNER_PASSWORD}
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD}
+      DB_READONLY_PASSWORD: ${DB_READONLY_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - civicconnect-data:/var/lib/postgresql/data
+      - ./db/00_roles.sql:/sql/00_roles.sql:ro
+      - ./docker/init/01-roles.sh:/docker-entrypoint-initdb.d/01-roles.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ccadmin -d civicconnect"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+volumes:
+  civicconnect-data:

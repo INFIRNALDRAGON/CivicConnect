@@ -4,6 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### PostgreSQL ###
+/backend/src/main/resources/application-dev.properties
+.env
+
 ### STS ###
 .apt_generated
 .classpath
