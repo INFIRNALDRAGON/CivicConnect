@@ -10,7 +10,7 @@ This repository contains both the backend (Java/Spring Boot REST API) and the fr
 
 **Backend**
 - [x] Project bootstrapped with Spring Boot, Maven build configured
-- [ ] PostgreSQL datasource connected, application context loads successfully
+- [x] PostgreSQL datasource connected, application context loads successfully
 - [ ] Domain entities (User, ServiceRequest, Category, StatusHistory)
 - [ ] Repository / service layers
 - [ ] Controlled status-transition logic (State pattern - see ADR-ED-007)
@@ -156,39 +156,304 @@ Full rationale and alternatives considered: ADR-M2-01 (`docs/decisions/`).
 
 You'll need both the backend and frontend running for the full application to work.
 
-### 1. Start PostgreSQL
+# CivicConnect Database Setup Guide
 
-```bash
-docker run --name civicconnect-db \
-  -e POSTGRES_PASSWORD=yourpassword \
-  -e POSTGRES_DB=civicconnect \
-  -p 5432:5432 \
-  -d postgres
+This guide explains how to set up the CivicConnect PostgreSQL database, Docker container, Flyway migrations, Spring Boot configuration, and dummy test data from scratch.
+
+---
+
+# Prerequisites
+
+Before starting, install the following:
+
+- Docker Desktop
+- Java JDK 21
+- Apache Maven (optional if using Maven Wrapper)
+- pgAdmin 4
+- Git
+
+---
+
+# 1. Add the Required Files
+
+Create a new file in the project root:
+
+```text
+.env
 ```
 
-Or install PostgreSQL locally and create a `civicconnect` database.
+by copying:
 
-### 2. Run the backend
-
-```bash
-cd backend
-cp src/main/resources/application-example.properties src/main/resources/application-dev.properties
-# edit application-dev.properties with your local DB credentials - this file is gitignored
-mvn clean install
-mvn spring-boot:run
+```text
+.env.example
 ```
 
-Backend runs at `http://localhost:8080` by default.
+and replacing the placeholder passwords with your own values.
 
-See `backend/README.md` for full backend-specific detail.
+Example:
 
-### 3. Run the frontend
+```env
+DB_ADMIN_PASSWORD=YourAdminPassword
+DB_OWNER_PASSWORD=YourOwnerPassword
+DB_APP_PASSWORD=YourAppPassword
+DB_READONLY_PASSWORD=YourReadonlyPassword
+```
+
+---
+
+# 2. Configure Git for Shell Scripts
+
+Windows sometimes converts shell scripts from LF to CRLF line endings, which can cause Docker initialization scripts to fail.
+
+Add the following to `.gitattributes`:
+
+```text
+*.sh text eol=lf
+```
+
+---
+
+# 3. Start the Database
+
+Open Docker Desktop and wait until:
+
+```text
+Engine Running
+```
+
+is displayed.
+
+From the repository root, run:
 
 ```bash
-cd frontend
-npm install
-npm run dev
+docker compose up -d
 ```
+
+During the first startup:
+
+- The PostgreSQL image is downloaded.
+- The database container is created.
+- The initialization script runs.
+- Database roles are created using the passwords stored in `.env`.
+
+---
+
+# 4. Verify the Database is Healthy
+
+Check container status:
+
+```bash
+docker compose ps
+```
+
+Wait until the database service shows:
+
+```text
+healthy
+```
+
+Example:
+
+```text
+NAME              STATUS
+civicconnect-db   Up (healthy)
+```
+
+### Troubleshooting
+
+View container logs:
+
+```bash
+docker compose logs db
+```
+
+Look for messages containing:
+
+```text
+ERROR
+FATAL
+```
+
+### Reset the Database
+
+If you need to recreate the database from scratch:
+
+```bash
+docker compose down -v
+```
+
+Then:
+
+```bash
+docker compose up -d
+```
+
+⚠️ This deletes all existing data.
+
+---
+
+# 5. Connect with pgAdmin
+
+Open pgAdmin and register a new server.
+
+### Connection Settings
+
+```text
+Host: localhost
+Port: 5433
+Database: civicconnect
+Username: ccadmin
+Password: <DB_ADMIN_PASSWORD>
+```
+
+Example:
+
+```text
+Host: localhost
+Port: 5433
+Database: civicconnect
+Username: ccadmin
+Password: ********
+```
+
+### Verify Created Roles
+
+Expand:
+
+```text
+Login/Group Roles
+```
+
+You should see:
+
+```text
+civicconnect_owner
+civicconnect_app
+civicconnect_readonly
+```
+
+Note:
+
+Windows PostgreSQL installations commonly run on port:
+
+```text
+5432
+```
+
+The CivicConnect Docker database runs on:
+
+```text
+5433
+```
+
+so the two do not conflict.
+
+---
+
+# 6. Configure Spring Boot
+
+Create:
+
+```text
+backend/src/main/resources/application-dev.properties
+```
+
+Example configuration:
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5433/civicconnect
+
+spring.datasource.username=civicconnect_app
+spring.datasource.password=<DB_APP_PASSWORD>
+
+spring.flyway.user=civicconnect_owner
+spring.flyway.password=<DB_OWNER_PASSWORD>
+
+spring.jpa.hibernate.ddl-auto=validate
+```
+
+---
+
+# 7. Run the Backend
+
+Navigate to:
+
+```text
+backend
+```
+
+Windows:
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+Linux / macOS:
+
+```bash
+./mvnw spring-boot:run
+```
+
+---
+
+# 8. Verify Startup
+
+The log should show Flyway applying migrations:
+
+```text
+Migrating schema "public" to version "1 - init schema"
+Migrating schema "public" to version "2 - seed categories"
+```
+
+and then:
+
+```text
+Started BackendApplication
+```
+
+---
+
+# 9. Load Dummy Data
+
+In pgAdmin:
+
+1. Open **Query Tool**
+2. Connect to the **civicconnect** database as:
+
+```text
+ccadmin
+```
+
+3. Open:
+
+```text
+dev_seed_dummy_data.sql
+```
+
+4. Execute the script.
+
+This populates:
+
+- Users
+- Categories
+- Service Requests
+- Status History
+- Notifications
+- User Category permissions
+
+---
+
+# 14. Re-running the Dummy Data Script
+
+The seed script is designed so that:
+
+```text
+Running it again does not create duplicates.
+```
+
+The script also contains a commented cleanup section that can be used to remove all development test data if required.
+
+---
 
 Frontend runs at `http://localhost:5173` (or whatever port your dev server uses) and talks to the backend API.
 
