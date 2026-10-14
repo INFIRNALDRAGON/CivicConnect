@@ -443,7 +443,7 @@ This populates:
 
 ---
 
-# 14. Re-running the Dummy Data Script
+# 10. Re-running the Dummy Data Script
 
 The seed script is designed so that:
 
