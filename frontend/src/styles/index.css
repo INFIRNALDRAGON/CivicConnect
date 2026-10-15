@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Archivo', 'Segoe UI', system-ui, sans-serif;
+  --color-ink: #12263a;
+  --color-ink-soft: #1d3a56;
+  --color-paper: #eef2f5;
+  --color-line: #d2dae2;
+  --color-line-strong: #9fadbb;
+  --color-muted: #54657a;
+  --color-signal: #f5b82e;
+}
+
+@layer base {
+  body {
+    background: var(--color-paper);
+    color: var(--color-slate-900);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.55;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  a {
+    color: var(--color-blue-800);
+    text-decoration: underline;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-ink);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 6px var(--color-signal);
+  }
+
+  main:focus {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
