@@ -1,31 +1,15 @@
 -- V2 - controlled category list (reference data). Edit names to match your
 -- approved scope (PED Section 2.1). Thresholds use the V1 default (72h) until
--- the team agrees real values with the stakeholders.
-INSERT INTO categories (name) VALUES
-    ('Facility fault'),
-    ('Damaged equipment'),
-    ('Security concern'),
-    ('IT support'),
-    ('Maintenance'),
-    ('Lost property'),
-    ('Other')
+-- the team agrees real values with the stakeholders (CR-02).
+-- NOTE: user accounts are NOT created here. Real users register through the app
+-- (REQUESTER) and staff/manager accounts are provisioned by an administrator.
+-- Demo accounts for local development live in db/dev/R__dev_seed.sql.
+INSERT INTO categories (name, overdue_after_hours) VALUES
+    ('Facility fault',    72),
+    ('Damaged equipment', 96),
+    ('Security concern',  24),
+    ('IT support',        48),
+    ('Maintenance',      120),
+    ('Lost property',    168),
+    ('Other',            120)
 ON CONFLICT (name) DO NOTHING;
-
-INSERT INTO users
-(name, email, password_hash, role)
-VALUES
-('Admin User', 'admin@civicconnect.co.za', '$2a$10$adminhash', 'MANAGER'),
-
-('John Staff', 'john.staff@civicconnect.co.za', '$2a$10$johnhash', 'STAFF'),
-
-('Sarah Staff', 'sarah.staff@civicconnect.co.za', '$2a$10$sarahhash', 'STAFF'),
-
-('David Staff', 'david.staff@civicconnect.co.za', '$2a$10$davidhash', 'STAFF'),
-
-('Alice Brown', 'alice@gmail.com', '$2a$10$alicehash', 'REQUESTER'),
-
-('Bob Smith', 'bob@gmail.com', '$2a$10$bobhash', 'REQUESTER'),
-
-('Charlie Jones', 'charlie@gmail.com', '$2a$10$charliehash', 'REQUESTER'),
-
-('Emma Wilson', 'emma@gmail.com', '$2a$10$emmahash', 'REQUESTER');
