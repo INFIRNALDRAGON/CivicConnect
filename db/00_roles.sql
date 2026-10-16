@@ -13,19 +13,19 @@ DO $$
 BEGIN
   -- Owns every table; used ONLY to run migrations (DDL).
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'civicconnect_owner') THEN
-    CREATE ROLE civicconnect_owner LOGIN PASSWORD 'N0t@5camm3r!'
+    CREATE ROLE civicconnect_owner LOGIN PASSWORD 'OwnerPass123'
       NOSUPERUSER NOCREATEDB NOCREATEROLE;
   END IF;
 
   -- Used by the running Spring Boot application. Data access only, no DDL.
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'civicconnect_app') THEN
-    CREATE ROLE civicconnect_app LOGIN PASSWORD '61s&fra1d0f7'
+    CREATE ROLE civicconnect_app LOGIN PASSWORD 'AppPass123'
       NOSUPERUSER NOCREATEDB NOCREATEROLE;
   END IF;
 
   -- Inspection / reporting tools. Reads the reporting view only.
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'civicconnect_readonly') THEN
-    CREATE ROLE civicconnect_readonly LOGIN PASSWORD 'S3m1Ins@n3001'
+    CREATE ROLE civicconnect_readonly LOGIN PASSWORD 'ReadOnlyPass123'
       NOSUPERUSER NOCREATEDB NOCREATEROLE;
   END IF;
 END
