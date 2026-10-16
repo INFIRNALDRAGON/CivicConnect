@@ -1,25 +1,32 @@
 package com.civicconnect.backend.controller;
 
-import com.civicconnect.backend.dto.CategoryDto;
-import com.civicconnect.backend.service.CategoryService;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.civicconnect.backend.request.RequestService;
 
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
 
-    private final CategoryService service;
+    private final RequestService requests;
 
-    public CategoryController(CategoryService service) {
-        this.service = service;
+    public CategoryController(RequestService requests) {
+        this.requests = requests;
     }
 
-    /** The controlled category list the requester picks from (FR-002). */
     @GetMapping
-    public List<CategoryDto> list() {
-        return service.listActive();
+    public List<Map<String, Object>> list() {
+        return requests.activeCategories().stream().map(c -> {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("id", c.id().toString());
+            item.put("name", c.name());
+            return item;
+        }).toList();
     }
 }
