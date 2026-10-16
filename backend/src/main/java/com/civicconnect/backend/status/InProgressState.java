@@ -17,7 +17,10 @@ final class InProgressState implements RequestState {
         return Set.of(RequestStatus.RESOLVED);
     }
 
+<<<<<<< Updated upstream
     /** FR-012 / CR-05: resolving needs a recorded resolution note. */
+=======
+>>>>>>> Stashed changes
     @Override
     public void checkPreconditions(RequestStatus target, TransitionContext ctx) {
         if (!ctx.hasComment()) {

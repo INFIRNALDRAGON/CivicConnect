@@ -1,11 +1,17 @@
 package com.civicconnect.backend.request;
 
+<<<<<<< Updated upstream
 /**
  * Staff queue criteria (FR-007). Every field is optional.
  *
  * @param text matches against the reference number or description, case-insensitive
  */
 public record RequestFilter(Long categoryId, RequestStatus status, String text, RequestSort sort) {
+=======
+import java.util.UUID;
+
+public record RequestFilter(UUID categoryId, RequestStatus status, String text, RequestSort sort) {
+>>>>>>> Stashed changes
 
     public static RequestFilter none() {
         return new RequestFilter(null, null, null, RequestSort.OLDEST_FIRST);

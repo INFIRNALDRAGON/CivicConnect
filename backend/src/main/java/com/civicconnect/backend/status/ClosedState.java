@@ -4,7 +4,10 @@ import java.util.Set;
 
 import com.civicconnect.backend.request.RequestStatus;
 
+<<<<<<< Updated upstream
 /** Terminal. Every further transition is refused. */
+=======
+>>>>>>> Stashed changes
 final class ClosedState implements RequestState {
 
     @Override

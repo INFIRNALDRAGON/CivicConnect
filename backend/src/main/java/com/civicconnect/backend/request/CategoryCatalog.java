@@ -1,6 +1,7 @@
 package com.civicconnect.backend.request;
 
 import java.util.List;
+<<<<<<< Updated upstream
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,6 +31,23 @@ public class CategoryCatalog {
 
     public List<Category> allActive() {
         return categories.values().stream().filter(Category::active)
+=======
+import java.util.Optional;
+import java.util.UUID;
+
+public interface CategoryCatalog {
+
+    Optional<Category> findById(UUID id);
+
+    List<Category> all();
+
+    default Optional<Category> findActive(UUID id) {
+        return findById(id).filter(Category::active);
+    }
+
+    default List<Category> allActive() {
+        return all().stream().filter(Category::active)
+>>>>>>> Stashed changes
                 .sorted(java.util.Comparator.comparing(Category::name)).toList();
     }
 }

@@ -1,5 +1,6 @@
 package com.civicconnect.backend.status;
 
+<<<<<<< Updated upstream
 import com.civicconnect.backend.request.RequestStatus;
 
 /**
@@ -10,4 +11,15 @@ import com.civicconnect.backend.request.RequestStatus;
  * @param expectedVersion the version the caller last saw (optimistic locking)
  */
 public record TransitionCommand(RequestStatus target, String comment, Long assigneeId, long expectedVersion) {
+=======
+import java.util.UUID;
+
+import com.civicconnect.backend.request.RequestStatus;
+
+public record TransitionCommand(RequestStatus target, String comment, UUID assigneeId, long expectedVersion) {
+
+    public TransitionCommand {
+        comment = comment == null || comment.isBlank() ? null : comment.trim();
+    }
+>>>>>>> Stashed changes
 }

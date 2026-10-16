@@ -1,6 +1,7 @@
 package com.civicconnect.backend.auth;
 
 import java.util.Set;
+<<<<<<< Updated upstream
 
 /**
  * The caller as the rest of the code sees them. Built by the security layer
@@ -10,6 +11,11 @@ import java.util.Set;
  * @param categoryIds categories a STAFF member may see (user_category, CR-06). Ignored for other roles.
  */
 public record AuthenticatedUser(Long id, Role role, Set<Long> categoryIds) {
+=======
+import java.util.UUID;
+
+public record AuthenticatedUser(UUID id, Role role, Set<UUID> categoryIds) {
+>>>>>>> Stashed changes
 
     public AuthenticatedUser {
         categoryIds = categoryIds == null ? Set.of() : Set.copyOf(categoryIds);

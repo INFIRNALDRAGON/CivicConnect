@@ -5,7 +5,10 @@ import java.util.Map;
 
 import com.civicconnect.backend.request.RequestStatus;
 
+<<<<<<< Updated upstream
 /** Lookup from the stored status value to its State object. States hold no data, so they are shared. */
+=======
+>>>>>>> Stashed changes
 public final class RequestStates {
 
     private static final Map<RequestStatus, RequestState> STATES = new EnumMap<>(RequestStatus.class);
@@ -16,6 +19,10 @@ public final class RequestStates {
         register(new InProgressState());
         register(new ResolvedState());
         register(new ClosedState());
+<<<<<<< Updated upstream
+=======
+        register(new RejectedState());
+>>>>>>> Stashed changes
     }
 
     private RequestStates() {

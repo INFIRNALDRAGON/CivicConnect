@@ -1,6 +1,7 @@
 package com.civicconnect.backend.notification;
 
 import java.time.Instant;
+<<<<<<< Updated upstream
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -39,4 +40,17 @@ public class NotificationStore {
         }
         return Optional.empty();
     }
+=======
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+public interface NotificationStore {
+
+    Notification add(Notification notification);
+
+    List<Notification> findByRecipient(UUID recipientId);
+
+    Optional<Notification> markRead(UUID id, UUID recipientId, Instant when);
+>>>>>>> Stashed changes
 }

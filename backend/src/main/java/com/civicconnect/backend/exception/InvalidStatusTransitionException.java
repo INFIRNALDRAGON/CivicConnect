@@ -2,8 +2,13 @@ package com.civicconnect.backend.exception;
 
 import com.civicconnect.backend.request.RequestStatus;
 
+<<<<<<< Updated upstream
 /** Maps to HTTP 409. Thrown by the State objects when FR-010 would be violated. */
 public class InvalidStatusTransitionException extends RuntimeException {
+=======
+public class InvalidStatusTransitionException extends RuntimeException {
+
+>>>>>>> Stashed changes
     private final RequestStatus from;
     private final RequestStatus to;
 

@@ -8,9 +8,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AppConfig {
 
+<<<<<<< Updated upstream
     /** Injected everywhere that needs "now" so tests can pin the time. 
      *@return return the time
      */
+=======
+>>>>>>> Stashed changes
     @Bean
     public Clock clock() {
         return Clock.systemUTC();

@@ -2,8 +2,13 @@ package com.civicconnect.backend.exception;
 
 import java.util.List;
 
+<<<<<<< Updated upstream
 /** Maps to HTTP 400. Carries every problem found so the client can show them all at once. */
 public class ValidationException extends RuntimeException {
+=======
+public class ValidationException extends RuntimeException {
+
+>>>>>>> Stashed changes
     private final List<String> errors;
 
     public ValidationException(String error) {

@@ -1,5 +1,10 @@
 package com.civicconnect.backend.assignment;
 
+<<<<<<< Updated upstream
+=======
+import java.util.UUID;
+
+>>>>>>> Stashed changes
 import org.springframework.stereotype.Service;
 
 import com.civicconnect.backend.auth.AccessControlService;
@@ -15,11 +20,14 @@ import com.civicconnect.backend.request.ServiceRequest;
 import com.civicconnect.backend.status.StatusTransitionService;
 import com.civicconnect.backend.status.TransitionCommand;
 
+<<<<<<< Updated upstream
 /**
  * FR-009. Decides who may assign, then triggers Submitted to Assigned through the status module.
  * Manual assignment only: automated routing is out of scope.
  * Staff accept a request for themselves; managers assign it to any staff member in scope.
  */
+=======
+>>>>>>> Stashed changes
 @Service
 public class AssignmentService {
 
@@ -36,6 +44,7 @@ public class AssignmentService {
         this.users = users;
     }
 
+<<<<<<< Updated upstream
     /**
      * Assigns a Submitted request to a staff member (FR-009).
      *
@@ -53,6 +62,14 @@ public class AssignmentService {
             throw new ForbiddenException("Staff can only accept requests for themselves");
         }
 
+=======
+    public ServiceRequest assign(AuthenticatedUser actor, UUID requestId, UUID assigneeId, long expectedVersion) {
+        access.requireStaffOrManager(actor);
+        UUID targetId = assigneeId == null ? actor.id() : assigneeId;
+        if (actor.isStaff() && !targetId.equals(actor.id())) {
+            throw new ForbiddenException("Staff can only accept requests for themselves");
+        }
+>>>>>>> Stashed changes
         AuthenticatedUser assignee = targetId.equals(actor.id())
                 ? actor
                 : users.findById(targetId).orElseThrow(() -> new NotFoundException("Assignee not found"));
@@ -68,7 +85,10 @@ public class AssignmentService {
         if (request.getAssignedStaffId() != null || request.getStatus() != RequestStatus.SUBMITTED) {
             throw new ConflictException("This request is already assigned");
         }
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
         return transitions.transition(actor, requestId,
                 new TransitionCommand(RequestStatus.ASSIGNED, null, targetId, expectedVersion));
     }

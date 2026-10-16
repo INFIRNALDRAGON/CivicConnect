@@ -14,13 +14,26 @@ final class SubmittedState implements RequestState {
 
     @Override
     public Set<RequestStatus> allowedNext() {
+<<<<<<< Updated upstream
         return Set.of(RequestStatus.ASSIGNED);
+=======
+        return Set.of(RequestStatus.ASSIGNED, RequestStatus.REJECTED);
+>>>>>>> Stashed changes
     }
 
     @Override
     public void checkPreconditions(RequestStatus target, TransitionContext ctx) {
+<<<<<<< Updated upstream
         if (ctx.assigneeId() == null) {
             throw new ValidationException("An assignee is required to move a request to Assigned");
         }
+=======
+        if (target == RequestStatus.ASSIGNED && ctx.assigneeId() == null) {
+            throw new ValidationException("An assignee is required to move a request to Assigned");
+        }
+        if (target == RequestStatus.REJECTED && !ctx.hasComment()) {
+            throw new ValidationException("A reason is required to reject a request");
+        }
+>>>>>>> Stashed changes
     }
 }

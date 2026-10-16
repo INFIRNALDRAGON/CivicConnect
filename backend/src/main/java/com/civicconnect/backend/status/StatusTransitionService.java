@@ -2,6 +2,10 @@ package com.civicconnect.backend.status;
 
 import java.time.Clock;
 import java.time.Instant;
+<<<<<<< Updated upstream
+=======
+import java.util.UUID;
+>>>>>>> Stashed changes
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.civicconnect.backend.auth.AccessControlService;
 import com.civicconnect.backend.auth.AuthenticatedUser;
+<<<<<<< Updated upstream
+=======
+import com.civicconnect.backend.exception.ValidationException;
+>>>>>>> Stashed changes
 import com.civicconnect.backend.request.RequestService;
 import com.civicconnect.backend.request.RequestStatus;
 import com.civicconnect.backend.request.ServiceRequest;
 
+<<<<<<< Updated upstream
 /**
  * The single write path for request status (ASR-01, FR-010, FR-012).
  * <ol>
@@ -28,6 +37,13 @@ import com.civicconnect.backend.request.ServiceRequest;
 @Service
 public class StatusTransitionService {
 
+=======
+@Service
+public class StatusTransitionService {
+
+    static final int MAX_COMMENT_LENGTH = 2000;
+
+>>>>>>> Stashed changes
     private static final Logger log = LoggerFactory.getLogger(StatusTransitionService.class);
 
     private final RequestService requests;
@@ -43,6 +59,7 @@ public class StatusTransitionService {
         this.clock = clock;
     }
 
+<<<<<<< Updated upstream
     /**
      * One transaction (ADR-M2-02): the status update and the synchronous audit listener succeed or fail together.
      * The notification listener runs after commit, so nobody is told about a change that was rolled back.
@@ -53,16 +70,30 @@ public class StatusTransitionService {
      */
     @Transactional
     public ServiceRequest transition(AuthenticatedUser actor, Long requestId, TransitionCommand cmd) {
+=======
+    @Transactional
+    public ServiceRequest transition(AuthenticatedUser actor, UUID requestId, TransitionCommand cmd) {
+>>>>>>> Stashed changes
         access.requireStaffOrManager(actor);
         ServiceRequest before = requests.requireById(requestId);
         access.requireCategoryAccess(actor, before.getCategoryId());
 
+<<<<<<< Updated upstream
+=======
+        if (cmd.comment() != null && cmd.comment().length() > MAX_COMMENT_LENGTH) {
+            throw new ValidationException("Keep the note under " + MAX_COMMENT_LENGTH + " characters");
+        }
+
+>>>>>>> Stashed changes
         RequestStatus from = before.getStatus();
         try {
             RequestStates.of(from).validateTransition(cmd.target(),
                     new TransitionContext(actor, before, cmd.comment(), cmd.assigneeId()));
         } catch (RuntimeException rejected) {
+<<<<<<< Updated upstream
             // NFR-006: rejected attempts are visible too. Ids only, no personal data (NFR-003).
+=======
+>>>>>>> Stashed changes
             log.warn("Rejected status change: request={} from={} to={} actor={} reason={}",
                     requestId, from, cmd.target(), actor.id(), rejected.getMessage());
             throw rejected;
@@ -76,6 +107,7 @@ public class StatusTransitionService {
         }
 
         ServiceRequest saved = requests.saveStatusChange(updated, cmd.expectedVersion());
+<<<<<<< Updated upstream
         try {
             publisher.publishEvent(new StatusChangedEvent(saved.getId(), saved.getReferenceNumber(),
                     saved.getRequesterId(), from, saved.getStatus(), actor.id(), now, cmd.comment()));
@@ -86,6 +118,10 @@ public class StatusTransitionService {
             requests.undoStatusChange(before);
             throw listenerFailed;
         }
+=======
+        publisher.publishEvent(new StatusChangedEvent(saved.getId(), saved.getReferenceNumber(),
+                saved.getRequesterId(), from, saved.getStatus(), actor.id(), now, cmd.comment()));
+>>>>>>> Stashed changes
         return saved;
     }
 }

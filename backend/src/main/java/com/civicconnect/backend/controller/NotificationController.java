@@ -1,6 +1,13 @@
 package com.civicconnect.backend.controller;
 
+<<<<<<< Updated upstream
 import java.util.List;
+=======
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+>>>>>>> Stashed changes
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +31,7 @@ public class NotificationController {
     }
 
     @GetMapping
+<<<<<<< Updated upstream
     public List<Notification> mine(@AuthenticationPrincipal AuthenticatedUser actor) {
         return notifications.listFor(actor);
     }
@@ -31,5 +39,25 @@ public class NotificationController {
     @PostMapping("/{id}/read")
     public Notification markRead(@AuthenticationPrincipal AuthenticatedUser actor, @PathVariable Long id) {
         return notifications.markRead(actor, id);
+=======
+    public List<Map<String, Object>> mine(@AuthenticationPrincipal AuthenticatedUser actor) {
+        return notifications.listFor(actor).stream().map(NotificationController::toDto).toList();
+    }
+
+    @PostMapping("/{id}/read")
+    public Map<String, Object> markRead(@AuthenticationPrincipal AuthenticatedUser actor, @PathVariable UUID id) {
+        return toDto(notifications.markRead(actor, id));
+    }
+
+    private static Map<String, Object> toDto(Notification n) {
+        Map<String, Object> dto = new LinkedHashMap<>();
+        dto.put("id", n.id().toString());
+        dto.put("requestId", n.requestId().toString());
+        dto.put("referenceNumber", n.referenceNumber());
+        dto.put("message", n.message());
+        dto.put("createdAt", n.createdAt().toString());
+        dto.put("readAt", n.readAt() == null ? null : n.readAt().toString());
+        return dto;
+>>>>>>> Stashed changes
     }
 }

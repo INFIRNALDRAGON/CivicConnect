@@ -17,7 +17,10 @@ final class AssignedState implements RequestState {
         return Set.of(RequestStatus.IN_PROGRESS);
     }
 
+<<<<<<< Updated upstream
     /** Only the owner (or a manager) starts the work. */
+=======
+>>>>>>> Stashed changes
     @Override
     public void checkPreconditions(RequestStatus target, TransitionContext ctx) {
         boolean owner = ctx.actor().id().equals(ctx.request().getAssignedStaffId());
