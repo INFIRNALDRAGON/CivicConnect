@@ -15,7 +15,7 @@ COPY backend/src ./src
 COPY --from=web /web/dist ./src/main/resources/static
 RUN mvn -B -q -DskipTests package
 
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:24-jre
 RUN useradd --system --uid 10001 civic
 WORKDIR /app
 COPY --from=api /api/target/backend-*.jar /app/app.jar
