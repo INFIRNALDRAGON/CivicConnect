@@ -12,8 +12,8 @@
 DO $$
 BEGIN
   -- Owns every table; used ONLY to run migrations (DDL).
-  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'civicconnect_owner') THEN
-    CREATE ROLE civicconnect_owner LOGIN PASSWORD 'CHANGE_ME_owner'
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'Civicconnect_owner') THEN
+    CREATE ROLE civicconnect_owner LOGIN PASSWORD 'npg_ekWJ1i5VwhPl'
       NOSUPERUSER NOCREATEDB NOCREATEROLE;
   END IF;
 
