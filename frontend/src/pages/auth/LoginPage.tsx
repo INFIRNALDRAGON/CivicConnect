@@ -73,20 +73,6 @@ const LoginPage: React.FC = () => {
         New to CivicConnect? <Link to="/register">Create a requester account</Link>
       </p>
 
-      {/* Demo accounts */}
-      {SHOW_DEMO_ACCOUNTS && (
-        <div className='mt-7 p-4 border-2 border-dashed border-line-strong rounded-xl'>
-          <p className='m-0 font-bold'>Demo accounts (sample data)</p>
-          <p className='mt-1 mb-3 text-[0.9375rem] text-muted'>All demo accounts use the password Test@1234</p>
-          <div className='flex flex-wrap gap-2'>
-            {DEMO_ACCOUNTS.map((account) => (
-              <Button key={account.email} variant="secondary" size="sm" onClick={() => setForm({ email: account.email, password: DEMO_PASSWORD })}>
-                {account.label}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
     </AuthLayout>
   );
 };
