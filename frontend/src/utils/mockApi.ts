@@ -69,7 +69,7 @@ interface Route {
   run: (input: RouteInput) => unknown;
 }
 
-const STORAGE_KEY = 'cc_mock_db_v2';
+const STORAGE_KEY = 'cc_mock_db_v3';
 const LATENCY_MS = 220;
 const PRIORITIES: Priority[] = ['LOW', 'MEDIUM', 'HIGH'];
 const NOTES: Partial<Record<Status, string>> = {
@@ -88,7 +88,7 @@ function fail(status: number, message: string): never {
 
 const seedDb = (): MockDb => {
   const db: MockDb = {
-    seq: { request: 1, history: 1, user: 6 },
+    seq: { request: 1, history: 1, user: 10 },
     categories: [
       { id: 1, name: 'Facility fault', overdueAfterHours: 72 },
       { id: 2, name: 'Damaged equipment', overdueAfterHours: 96 },
@@ -99,11 +99,15 @@ const seedDb = (): MockDb => {
       { id: 7, name: 'Other', overdueAfterHours: 120 }
     ],
     users: [
-      { id: 1, name: 'Thandi Mokoena', email: 'req1@civicconnect.test', password: 'Test@1234', role: 'REQUESTER', categoryIds: [] },
-      { id: 2, name: 'Pieter Naidoo', email: 'staff1@civicconnect.test', password: 'Test@1234', role: 'STAFF', categoryIds: [1, 2, 4, 5, 6, 7] },
-      { id: 3, name: 'Lerato Dlamini', email: 'staff2@civicconnect.test', password: 'Test@1234', role: 'STAFF', categoryIds: [3] },
-      { id: 4, name: 'Anele Jacobs', email: 'manager@civicconnect.test', password: 'Test@1234', role: 'MANAGER', categoryIds: [] },
-      { id: 5, name: 'Sipho Khumalo', email: 'req2@civicconnect.test', password: 'Test@1234', role: 'REQUESTER', categoryIds: [] }
+      { id: 1, name: 'Riley Requester-One', email: 'req1@civicconnect.test', password: 'Test@1234', role: 'REQUESTER', categoryIds: [] },
+      { id: 2, name: 'Sam Staff-One', email: 'staff1@civicconnect.test', password: 'Test@1234', role: 'STAFF', categoryIds: [4, 5] },
+      { id: 3, name: 'Sasha Staff-Two', email: 'staff2@civicconnect.test', password: 'Test@1234', role: 'STAFF', categoryIds: [1, 2, 3] },
+      { id: 4, name: 'Morgan Manager', email: 'manager@civicconnect.test', password: 'Test@1234', role: 'MANAGER', categoryIds: [] },
+      { id: 5, name: 'Robin Requester-Two', email: 'req2@civicconnect.test', password: 'Test@1234', role: 'REQUESTER', categoryIds: [] },
+      { id: 6, name: 'Sidney Staff-Three', email: 'staff3@civicconnect.test', password: 'Test@1234', role: 'STAFF', categoryIds: [4, 6, 7] },
+      { id: 7, name: 'Reese Requester-Three', email: 'req3@civicconnect.test', password: 'Test@1234', role: 'REQUESTER', categoryIds: [] },
+      { id: 8, name: 'Remi Requester-Four', email: 'req4@civicconnect.test', password: 'Test@1234', role: 'REQUESTER', categoryIds: [] },
+      { id: 9, name: 'Rowan Requester-Five', email: 'req5@civicconnect.test', password: 'Test@1234', role: 'REQUESTER', categoryIds: [] }
     ],
     requests: [],
     read: {}
@@ -158,16 +162,16 @@ const seedDb = (): MockDb => {
     });
   };
 
-  add(1, 1, 'The lift on the second floor stops between floors and the doors stay shut.', 'IN_PROGRESS', 'HIGH', 100, 2);
+  add(1, 1, 'The lift on the second floor stops between floors and the doors stay shut.', 'IN_PROGRESS', 'HIGH', 100, 3);
   add(4, 1, 'My workstation in the front office will not connect to the shared printer.', 'ASSIGNED', 'MEDIUM', 20, 2);
   add(6, 1, 'I lost a blue backpack in the hall after the community meeting on Saturday.', 'SUBMITTED', 'LOW', 6);
   add(5, 5, 'A tap in the ground-floor bathroom has been dripping for a week.', 'RESOLVED', 'MEDIUM', 60, 2);
   add(3, 5, 'The side gate latch is broken and the gate does not lock at night.', 'SUBMITTED', 'HIGH', 30);
-  add(2, 1, 'Two folding tables in the hall have cracked legs and are unsafe to use.', 'CLOSED', 'MEDIUM', 200, 2);
+  add(2, 1, 'Two folding tables in the hall have cracked legs and are unsafe to use.', 'CLOSED', 'MEDIUM', 200, 3);
   add(1, 5, 'Several lights in the car park are not working after dark.', 'SUBMITTED', 'MEDIUM', 2);
   add(4, 5, 'Wi-Fi drops every few minutes in the meeting room.', 'IN_PROGRESS', 'MEDIUM', 30, 2, 'Waiting for the network supplier to confirm a visit.');
   add(5, 1, 'The roof leaks above the storage room when it rains.', 'ASSIGNED', 'HIGH', 140, 2);
-  add(7, 5, 'Please add a sign at the entrance showing the wheelchair ramp.', 'CLOSED', 'LOW', 300, 2);
+  add(7, 5, 'Please add a sign at the entrance showing the wheelchair ramp.', 'CLOSED', 'LOW', 300, 6);
   add(3, 1, 'A stranger was seen trying door handles in the east corridor.', 'IN_PROGRESS', 'HIGH', 10, 3);
   add(4, 1, 'Email on the shared reception account will not sync.', 'RESOLVED', 'MEDIUM', 90, 2);
   return db;

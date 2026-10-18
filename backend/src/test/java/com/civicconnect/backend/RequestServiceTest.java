@@ -58,7 +58,7 @@ class RequestServiceTest {
     @Test
     void referencesAreUnique() {
         java.util.Set<String> seen = new java.util.HashSet<>();
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < 100_000; i++) {
             assertTrue(seen.add(f.submit(f.alice, TestFixture.POTHOLES).getReferenceNumber()));
         }
     }

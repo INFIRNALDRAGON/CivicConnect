@@ -72,8 +72,8 @@ const LoginPage: React.FC = () => {
       <p className='mt-6'>
         New to CivicConnect? <Link to="/register">Create a requester account</Link>
       </p>
-
       {/* Demo accounts */}
+      {/*
       {SHOW_DEMO_ACCOUNTS && (
         <div className='mt-7 p-4 border-2 border-dashed border-line-strong rounded-xl'>
           <p className='m-0 font-bold'>Demo accounts (sample data)</p>
@@ -87,6 +87,7 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
       )}
+      */}
     </AuthLayout>
   );
 };

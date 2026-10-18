@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+ROOT="$(git rev-parse --show-toplevel)"
+
+echo "pre-push: backend unit tests"
+(cd "$ROOT/backend" && sh ./mvnw -B -q test)
+
+echo "pre-push: frontend type check and unit tests"
+(cd "$ROOT/frontend" && npm run build --silent && npm test --silent)
+
+echo "pre-push: fast checks passed (the full set runs in GitHub Actions)"

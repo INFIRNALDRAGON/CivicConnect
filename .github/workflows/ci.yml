@@ -1,0 +1,189 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DB_HOST: localhost
+  DB_PORT: '5433'
+  DB_NAME: civicconnect
+  DB_ADMIN_PASSWORD: CiAdminPass1
+  DB_OWNER_PASSWORD: CiOwnerPass1
+  DB_APP_PASSWORD: CiAppPass1
+  DB_READONLY_PASSWORD: CiReadPass1
+  APP_AUTH_SECRET: ci-only-secret-that-is-never-used-anywhere-else-1234567890
+  SPRING_PROFILES_ACTIVE: dev
+
+jobs:
+  backend:
+    name: Backend build, unit and API tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: civicconnect
+          POSTGRES_USER: ccadmin
+          POSTGRES_PASSWORD: CiAdminPass1
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U ccadmin -d civicconnect"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Create the database roles
+        run: |
+          command -v psql >/dev/null || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+          sed -e "s/CHANGE_ME_owner/${DB_OWNER_PASSWORD}/" \
+              -e "s/CHANGE_ME_app/${DB_APP_PASSWORD}/" \
+              -e "s/CHANGE_ME_readonly/${DB_READONLY_PASSWORD}/" \
+              db/00_roles.sql \
+            | PGPASSWORD="${DB_ADMIN_PASSWORD}" psql -v ON_ERROR_STOP=1 -h localhost -p 5433 -U ccadmin -d civicconnect
+      - name: Build, run unit tests and API tests
+        working-directory: backend
+        run: sh ./mvnw -B verify
+      - name: Check that the expected tests really ran
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### Backend tests"
+            echo '```'
+            python3 scripts/ci/check_test_counts.py backend 55 30
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-test-reports
+          path: |
+            backend/target/surefire-reports
+            backend/target/failsafe-reports
+            backend/target/site/jacoco
+          if-no-files-found: warn
+
+  frontend:
+    name: Frontend build, unit tests and mock-mode browser tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Type check and build
+        run: npm run build
+      - name: Unit tests
+        run: npm test
+      - name: Install the browser
+        run: npx playwright install --with-deps chromium
+      - name: Browser tests against the built-in mock API
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: frontend-browser-report
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+          if-no-files-found: ignore
+
+  system:
+    name: Whole system (real API and PostgreSQL) browser tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: civicconnect
+          POSTGRES_USER: ccadmin
+          POSTGRES_PASSWORD: CiAdminPass1
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U ccadmin -d civicconnect"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Create the database roles
+        run: |
+          command -v psql >/dev/null || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+          sed -e "s/CHANGE_ME_owner/${DB_OWNER_PASSWORD}/" \
+              -e "s/CHANGE_ME_app/${DB_APP_PASSWORD}/" \
+              -e "s/CHANGE_ME_readonly/${DB_READONLY_PASSWORD}/" \
+              db/00_roles.sql \
+            | PGPASSWORD="${DB_ADMIN_PASSWORD}" psql -v ON_ERROR_STOP=1 -h localhost -p 5433 -U ccadmin -d civicconnect
+      - name: Build the frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          VITE_USE_MOCK=false VITE_SHOW_DEMO_ACCOUNTS=true npm run build
+      - name: Package the API with the frontend inside it
+        run: |
+          mkdir -p backend/src/main/resources/static
+          cp -r frontend/dist/. backend/src/main/resources/static/
+          cd backend && sh ./mvnw -B -DskipTests package
+      - name: Start the application
+        run: |
+          nohup java -jar backend/target/backend-1.0.0.jar > app.log 2>&1 &
+          curl --silent --fail --retry 40 --retry-all-errors --retry-delay 3 http://localhost:8080/api/health
+      - name: Browser tests against the running system
+        working-directory: frontend
+        env:
+          E2E_BASE_URL: http://localhost:8080
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e
+      - name: Show the application log
+        if: failure()
+        run: tail -n 200 app.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: system-browser-report
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+            app.log
+          if-no-files-found: ignore

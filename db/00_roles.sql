@@ -3,8 +3,8 @@
 --   Locally : connect as CCAdmin (or postgres) in pgAdmin -> Query Tool
 --   Hosted  : connect as the provider's default owner role
 --
--- SECURITY: the repository is public (CO-08). The passwords below are
--- placeholders. Passwords already given to users.
+-- SECURITY: the repository is public (CO-08). The CHANGE_ME_* values below are
+-- placeholders: docker/init/01-roles.sh swaps them for the values in your local .env.
 -- Real values go in environment
 -- variables / the platform secret store (PED Section 23.3).
 -- =====================================================================
@@ -13,19 +13,19 @@ DO $$
 BEGIN
   -- Owns every table; used ONLY to run migrations (DDL).
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'civicconnect_owner') THEN
-    CREATE ROLE civicconnect_owner LOGIN PASSWORD 'N0t@5camm3r!'
+    CREATE ROLE civicconnect_owner LOGIN PASSWORD 'CHANGE_ME_owner'
       NOSUPERUSER NOCREATEDB NOCREATEROLE;
   END IF;
 
   -- Used by the running Spring Boot application. Data access only, no DDL.
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'civicconnect_app') THEN
-    CREATE ROLE civicconnect_app LOGIN PASSWORD '61s&fra1d0f7'
+    CREATE ROLE civicconnect_app LOGIN PASSWORD 'CHANGE_ME_app'
       NOSUPERUSER NOCREATEDB NOCREATEROLE;
   END IF;
 
   -- Inspection / reporting tools. Reads the reporting view only.
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'civicconnect_readonly') THEN
-    CREATE ROLE civicconnect_readonly LOGIN PASSWORD 'S3m1Ins@n3001'
+    CREATE ROLE civicconnect_readonly LOGIN PASSWORD 'CHANGE_ME_readonly'
       NOSUPERUSER NOCREATEDB NOCREATEROLE;
   END IF;
 END
