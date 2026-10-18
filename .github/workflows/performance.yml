@@ -1,0 +1,84 @@
+name: Performance test (P-01)
+
+on:
+  workflow_dispatch:
+    inputs:
+      quick:
+        description: Run the short smoke version instead of the full 4.5 minute profile
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  DB_HOST: localhost
+  DB_PORT: '5433'
+  DB_NAME: civicconnect
+  DB_ADMIN_PASSWORD: CiAdminPass1
+  DB_OWNER_PASSWORD: CiOwnerPass1
+  DB_APP_PASSWORD: CiAppPass1
+  DB_READONLY_PASSWORD: CiReadPass1
+  APP_AUTH_SECRET: ci-only-secret-that-is-never-used-anywhere-else-1234567890
+  SPRING_PROFILES_ACTIVE: dev
+
+jobs:
+  k6:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: civicconnect
+          POSTGRES_USER: ccadmin
+          POSTGRES_PASSWORD: CiAdminPass1
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U ccadmin -d civicconnect"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Create the database roles
+        run: |
+          command -v psql >/dev/null || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+          sed -e "s/CHANGE_ME_owner/${DB_OWNER_PASSWORD}/" \
+              -e "s/CHANGE_ME_app/${DB_APP_PASSWORD}/" \
+              -e "s/CHANGE_ME_readonly/${DB_READONLY_PASSWORD}/" \
+              db/00_roles.sql \
+            | PGPASSWORD="${DB_ADMIN_PASSWORD}" psql -v ON_ERROR_STOP=1 -h localhost -p 5433 -U ccadmin -d civicconnect
+      - name: Build and start the API
+        run: |
+          cd backend && sh ./mvnw -B -DskipTests package && cd ..
+          nohup java -jar backend/target/backend-1.0.0.jar > app.log 2>&1 &
+          curl --silent --fail --retry 40 --retry-all-errors --retry-delay 3 http://localhost:8080/api/health
+      - name: Record the environment
+        run: |
+          {
+            echo "### Environment"
+            echo "- Commit: ${GITHUB_SHA}"
+            echo "- Runner: $(nproc) CPUs, $(free -m | awk '/Mem:/ {print $2}') MB memory"
+            echo "- Database: postgres:15 service container on the same runner"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Run k6
+        shell: bash
+        run: |
+          docker run --rm -i --network host \
+            -e BASE_URL=http://localhost:8080 \
+            -e QUICK=${{ inputs.quick }} \
+            grafana/k6 run - < tests/performance/submit.js 2>&1 | tee k6-summary.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: k6-result
+          path: |
+            k6-summary.txt
+            app.log

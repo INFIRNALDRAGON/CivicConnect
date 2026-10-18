@@ -10,7 +10,10 @@ civicconnect/
 ├── docker/init/        container first-start script that applies the roles
 ├── docker-compose.yml  PostgreSQL, and optionally the whole app (profile "full")
 ├── Dockerfile          builds the React app and the API into one image
-├── docs/               Milestone 2 document
+├── docs/               Milestone 2 document, test traceability
+├── tests/              k6 performance script and test overview
+├── scripts/            test-all.sh / test-all.ps1, git hook installer, CI helpers
+├── .github/            CI, CodeQL, dependency review, Dependabot, PR template
 └── .env.example        copy to .env
 ```
 
@@ -93,13 +96,25 @@ Errors are `{ "message": "..." }` with 400 / 401 / 403 / 404 / 409. A 409 means 
 
 ## Tests
 
+Everything is automated. After you push to GitHub, `.github/workflows/ci.yml` runs on every push and pull request and again every night, so nobody has to remember to run anything. It builds and tests the backend against a real PostgreSQL 15, builds and tests the frontend, and then drives the whole running system with a browser. CodeQL and dependency review run on pull requests.
+
+On your own machine, one command does the same (it uses Docker for a throwaway database and never touches your real one):
+
 ```bash
-cd backend && ./mvnw verify
+scripts/test-all.sh            # Windows PowerShell: scripts\test-all.ps1
+scripts/install-git-hooks.sh   # optional: run the fast checks before every git push
 ```
 
-Unit tests cover the state machine, access control, request rules, notifications, reporting, the response shape the frontend relies on, login and JWT handling. They use the in-memory doubles, so no database is needed. There is no database-backed integration test yet: the transaction rollback guarantee (a failed audit write undoes the status change) rests on `@Transactional` plus PostgreSQL and is worth a Testcontainers test.
+Or run the layers separately:
 
-Frontend: `npm run build` type-checks and bundles. `VITE_USE_MOCK=true npm run dev` runs the whole UI against a built-in mock API without any backend.
+```bash
+cd backend && ./mvnw test      # unit and architecture tests, no database needed
+cd backend && ./mvnw verify    # plus API tests on PostgreSQL (docker compose up -d db first) and a JaCoCo report
+cd frontend && npm test        # unit tests
+cd frontend && npm run test:e2e   # browser tests on the built-in mock API
+```
+
+`tests/README.md` explains the layout and `docs/TEST_TRACEABILITY.md` maps every test to the PED test IDs (T-, A-, E-, P-) and requirements.
 
 ## Before this goes anywhere public
 

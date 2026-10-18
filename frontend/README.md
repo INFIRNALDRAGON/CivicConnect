@@ -23,7 +23,7 @@ The dev server proxies `/api` to `http://localhost:8080` (change with `VITE_DEV_
 
 `npm run build` type-checks with `tsc` and then writes the production bundle to `dist/` with the mock disabled. If the frontend is served from a different origin to the API, set `VITE_API_BASE_URL` to the API address and allow that origin in the backend (`APP_CORS_ALLOWED_ORIGINS`, PED 23.3, never a wildcard). The root `Dockerfile` bundles `dist/` inside the Spring Boot JAR, and the API forwards unknown non-API paths to `index.html`.
 
-Mock data lives in the browser's localStorage under `cc_mock_db_v2`. Remove that key to reset it.
+Mock data lives in the browser's localStorage under `cc_mock_db_v3`. Remove that key to reset it.
 
 ## Roles and routes
 
@@ -85,3 +85,19 @@ The layout follows the agreed structure with the `services/` folder removed (it 
 - `index.html` sits at the project root because Vite requires it there.
 - Small shared pieces were added under `components/common` and `components/layout`, plus `utils/roles.ts` and `types.ts`.
 - The `REJECTED` status has a label and message but no UI path. It is not in the five-state design of ED-007 and CR-03 is not approved.
+
+## Tests
+
+```bash
+npm test             # unit tests (Vitest): transition table, formatting, roles, mock API rules
+npm run test:e2e     # browser tests (Playwright) on the built-in mock API, no backend needed
+npx playwright install chromium   # once, to download the browser
+```
+
+To run the same browser tests against a running system (for example the Docker image on port 8080):
+
+```bash
+E2E_BASE_URL=http://localhost:8080 npm run test:e2e
+```
+
+The specs live in `e2e/` and the unit tests sit next to the code as `*.test.ts`.

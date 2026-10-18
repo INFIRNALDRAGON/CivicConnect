@@ -66,3 +66,6 @@ logs/
 # Test and tooling output
 playwright-report/
 test-results/
+
+app.log
+nohup.out
