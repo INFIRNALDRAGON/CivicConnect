@@ -74,7 +74,7 @@ jobs:
             python3 scripts/ci/check_test_counts.py backend 55 30
             echo '```'
           } | tee -a "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: backend-test-reports
@@ -107,7 +107,7 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Browser tests against the built-in mock API
         run: npm run test:e2e
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: frontend-browser-report
@@ -178,7 +178,7 @@ jobs:
       - name: Show the application log
         if: failure()
         run: tail -n 200 app.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: system-browser-report
