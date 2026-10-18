@@ -1,5 +1,6 @@
 # Secrets and local configuration
 .env
+.env.flyway
 .env.local
 .env.*.local
 *.pem
