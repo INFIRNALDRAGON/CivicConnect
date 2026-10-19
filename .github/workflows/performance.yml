@@ -75,7 +75,7 @@ jobs:
             -e BASE_URL=http://localhost:8080 \
             -e QUICK=${{ inputs.quick }} \
             grafana/k6 run - < tests/performance/submit.js 2>&1 | tee k6-summary.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: k6-result
