@@ -7,7 +7,7 @@ ARG VITE_SHOW_DEMO_ACCOUNTS=true
 ENV VITE_SHOW_DEMO_ACCOUNTS=$VITE_SHOW_DEMO_ACCOUNTS
 RUN npm run build
 
-FROM maven:3.9-eclipse-temurin-21 AS api
+FROM maven:3.9-eclipse-temurin-26 AS api
 WORKDIR /api
 COPY backend/pom.xml ./
 RUN mvn -B -q dependency:go-offline
